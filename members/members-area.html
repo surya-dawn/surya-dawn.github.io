@@ -1,33 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Surya Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+
+    <!-- Tailwind CSS CDN for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- Additional custom CSS can go here -->
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        #root {
-            width: 80%;
-            max-width: 1200px;
-            background: white;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-        }
+      /* Custom CSS can be added here if needed */
+      .bg-yellow-500 {
+        background-color: #fbbf24;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body class="bg-gray-100">
+    <!-- Main content of your app will go here -->
     <div id="root"></div>
-    <script src="java/script.js"></script>
-</body>
+
+    <!-- Your JavaScript files -->
+    <script src="auth.js"></script>
+    <script src="analytics.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="login.js"></script>
+  </body>
 </html>
