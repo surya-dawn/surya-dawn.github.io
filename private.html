@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surya Members Area</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            min-height: 100vh;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center">
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-md mx-auto glass-effect rounded-xl shadow-lg p-8">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-semibold text-gray-800 mb-2">Surya Members</h1>
+                <p class="text-gray-600">Enter your credentials to access the private section</p>
+            </div>
+
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label for="membershipId" class="block text-sm font-medium text-gray-700 mb-1">
+                        Membership ID
+                    </label>
+                    <input type="text" id="membershipId" 
+                           class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                           placeholder="Enter your membership ID">
+                </div>
+
+                <div>
+                    <label for="pin" class="block text-sm font-medium text-gray-700 mb-1">
+                        PIN
+                    </label>
+                    <input type="password" id="pin" 
+                           class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                           placeholder="Enter your 4-digit PIN" maxlength="4">
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+                        Password
+                    </label>
+                    <input type="password" id="password"
+                           class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+                           placeholder="Enter your password">
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-medium py-2 px-4 rounded-lg hover:opacity-90 transition duration-300">
+                    Access Private Section
+                </button>
+            </form>
+
+            <div id="errorMessage" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded-lg"></div>
+        </div>
+    </main>
+
+    <script>
+        // In a real application, these would be stored securely in a database
+        const validCredentials = {
+            'SURYA001': { pin: '1234', password: 'securepass123' },
+            'SURYA002': { pin: '5678', password: 'memberpass456' }
+        };
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const membershipId = document.getElementById('membershipId').value;
+            const pin = document.getElementById('pin').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Basic validation
+            if (!membershipId || !pin || !password) {
+                showError('Please fill in all fields');
+                return;
+            }
+
+            if (pin.length !== 4) {
+                showError('PIN must be 4 digits');
+                return;
+            }
+
+            // Check credentials
+            if (validCredentials[membershipId] && 
+                validCredentials[membershipId].pin === pin && 
+                validCredentials[membershipId].password === password) {
+                // Success - In a real application, this would redirect to the private section
+                window.location.href = '/members-area';
+            } else {
+                showError('Invalid credentials. Please try again.');
+            }
+        });
+
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+            setTimeout(() => {
+                errorMessage.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
