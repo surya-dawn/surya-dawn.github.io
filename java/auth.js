@@ -1,4 +1,4 @@
-// auth.js
+// js/auth.js
 
 class AuthService {
     constructor() {
@@ -177,5 +177,32 @@ class AuthService {
     }
 }
 
+// Create global auth instance
+window.auth = new AuthService();
+
 // Export the class for use in other files
 export default AuthService;
+
+// Add global handler for logout
+function handleLogout() {
+    window.auth.logoutUser();
+}
+
+// Add authentication check on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const auth = window.auth;
+    
+    // Check if user is authenticated
+    if (!auth.isAuthenticated()) {
+        window.location.href = '/login.html';
+        return;
+    }
+
+    // Update user's last active time
+    auth.updateLastActive();
+
+    // Set up periodic activity updates
+    setInterval(() => {
+        auth.updateLastActive();
+    }, 60000); // Update every minute
+});
