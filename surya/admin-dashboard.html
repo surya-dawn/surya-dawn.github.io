@@ -3,108 +3,461 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Surya Dashboard</title>
+    <title>Surya Admin Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            background: #f3f4f6;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+        .sidebar-icon {
+            transition: all 0.3s;
+        }
+        .sidebar-icon:hover {
+            transform: translateX(5px);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        .notification-dot {
+            top: 2px;
+            right: 2px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(0.95); }
+        }
+        .fade-enter {
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <div class="w-64 bg-gray-800 text-white">
-            <div class="p-6">
-                <h1 class="text-2xl font-semibold">Surya Dashboard</h1>
-                <p class="text-gray-400 text-sm mt-1">Welcome back!</p>
+<body class="h-screen flex overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-900 text-white flex flex-col">
+        <div class="p-4">
+            <h1 class="text-2xl font-bold mb-4">Surya Admin</h1>
+            <div class="relative">
+                <input type="text" placeholder="Search..." 
+                       class="w-full bg-gray-800 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400">
+                <i class="fas fa-search absolute right-3 top-2.5 text-gray-400"></i>
             </div>
-            <nav class="mt-6">
-                <a href="#" class="flex items-center px-6 py-3 text-gray-100 bg-gray-700">
-                    <span class="mx-3">Dashboard</span>
-                </a>
-                <a href="#" class="flex items-center px-6 py-3 text-gray-400 hover:bg-gray-700">
-                    <span class="mx-3">Analytics</span>
-                </a>
-                <a href="#" class="flex items-center px-6 py-3 text-gray-400 hover:bg-gray-700">
-                    <span class="mx-3">Settings</span>
-                </a>
-            </nav>
         </div>
+        
+        <nav class="flex-1 px-2 py-4 space-y-2">
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg sidebar-icon transition-colors">
+                <i class="fas fa-home mr-3"></i>
+                Dashboard
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg sidebar-icon">
+                <i class="fas fa-users mr-3"></i>
+                Members
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg sidebar-icon">
+                <i class="fas fa-chart-bar mr-3"></i>
+                Analytics
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-800 rounded-lg sidebar-icon">
+                <i class="fas fa-cog mr-3"></i>
+                Settings
+            </a>
+        </nav>
+        
+        <div class="p-4 border-t border-gray-700">
+            <div class="flex items-center">
+                <img src="/api/placeholder/40/40" alt="Admin Avatar" class="rounded-full w-10 h-10">
+                <div class="ml-3">
+                    <p class="text-sm font-medium">Ghost</p>
+                    <p class="text-xs text-gray-400">Administrator</p>
+                </div>
+            </div>
+        </div>
+    </aside>
 
-        <!-- Main Content -->
-        <div class="flex-1 overflow-hidden">
-            <!-- Top Bar -->
-            <div class="bg-white shadow-sm">
-                <div class="p-4 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-xl font-semibold" id="greeting">Loading...</h2>
-                        <p class="text-sm text-gray-500" id="lastLogin">Last login: Loading...</p>
-                    </div>
-                    <button onclick="handleLogout()" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
-                        Logout
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto bg-gray-100">
+        <!-- Top Navigation -->
+        <header class="bg-white shadow-sm">
+            <div class="flex items-center justify-between px-6 py-4">
+                <h2 class="text-xl font-semibold text-gray-800">Dashboard Overview</h2>
+                <div class="flex items-center space-x-4">
+                    <button class="relative p-2 text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute notification-dot w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <button class="relative p-2 text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-envelope text-xl"></i>
+                        <span class="absolute notification-dot w-2 h-2 bg-blue-500 rounded-full"></span>
                     </button>
                 </div>
             </div>
+        </header>
 
-            <!-- Dashboard Content -->
-            <div class="p-6 overflow-y-auto" style="height: calc(100vh - 73px)">
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                    <div class="bg-white rounded-lg p-6 shadow-sm">
-                        <h3 class="text-gray-500 text-sm">Total Visitors</h3>
-                        <p class="text-2xl font-semibold mt-2" id="totalVisitors">Loading...</p>
+        <!-- Dashboard Content -->
+        <div class="p-6 space-y-6">
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">Total Members</p>
+                            <h3 class="text-2xl font-bold text-gray-800">2,847</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-users text-blue-500"></i>
+                        </div>
                     </div>
-                    <div class="bg-white rounded-lg p-6 shadow-sm">
-                        <h3 class="text-gray-500 text-sm">Active Users</h3>
-                        <p class="text-2xl font-semibold mt-2" id="activeUsers">Loading...</p>
-                    </div>
-                    <div class="bg-white rounded-lg p-6 shadow-sm">
-                        <h3 class="text-gray-500 text-sm">Bounce Rate</h3>
-                        <p class="text-2xl font-semibold mt-2" id="bounceRate">Loading...</p>
-                    </div>
-                    <div class="bg-white rounded-lg p-6 shadow-sm">
-                        <h3 class="text-gray-500 text-sm">Avg. Session</h3>
-                        <p class="text-2xl font-semibold mt-2" id="avgSession">Loading...</p>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-500 flex items-center">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            12%
+                        </span>
+                        <span class="text-gray-400 ml-2">vs last month</span>
                     </div>
                 </div>
 
-                <!-- Charts -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-white p-6 rounded-lg shadow-sm">
-                        <h3 class="text-lg font-semibold mb-4">Visitor Trends</h3>
-                        <canvas id="visitorChart" height="300"></canvas>
+                <div class="glass-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">Active Sessions</p>
+                            <h3 class="text-2xl font-bold text-gray-800">482</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-signal text-green-500"></i>
+                        </div>
                     </div>
-                    <div class="bg-white p-6 rounded-lg shadow-sm">
-                        <h3 class="text-lg font-semibold mb-4">Page Views</h3>
-                        <canvas id="pageViewsChart" height="300"></canvas>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-500 flex items-center">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            8%
+                        </span>
+                        <span class="text-gray-400 ml-2">vs last hour</span>
                     </div>
                 </div>
 
-                <!-- Recent Activity Table -->
-                <div class="bg-white rounded-lg shadow-sm">
-                    <div class="p-6">
-                        <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full" id="activityTable">
-                                <thead>
-                                    <tr class="bg-gray-50">
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Page</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Views</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200" id="activityTableBody">
-                                    <!-- Will be populated by JavaScript -->
-                                </tbody>
-                            </table>
+                <div class="glass-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">New Members</p>
+                            <h3 class="text-2xl font-bold text-gray-800">147</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user-plus text-yellow-500"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-red-500 flex items-center">
+                            <i class="fas fa-arrow-down mr-1"></i>
+                            3%
+                        </span>
+                        <span class="text-gray-400 ml-2">vs last week</span>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-xl p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">Revenue</p>
+                            <h3 class="text-2xl font-bold text-gray-800">$24,891</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-dollar-sign text-purple-500"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-500 flex items-center">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            18%
+                        </span>
+                        <span class="text-gray-400 ml-2">vs last month</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-card rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Member Growth</h3>
+                    <div class="chart-container">
+                        <canvas id="memberGrowthChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Revenue Analytics</h3>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="glass-card rounded-xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800">Recent Activity</h3>
+                    <button class="text-blue-500 hover:text-blue-600 text-sm">View All</button>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center p-4 bg-white rounded-lg shadow-sm fade-enter">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user-plus text-blue-500"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-800">New member registered</p>
+                            <p class="text-xs text-gray-500">2 minutes ago</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-4 bg-white rounded-lg shadow-sm fade-enter">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-dollar-sign text-green-500"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-800">Payment received</p>
+                            <p class="text-xs text-gray-500">15 minutes ago</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-4 bg-white rounded-lg shadow-sm fade-enter">
+                        <div class="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-800">System alert</p>
+                            <p class="text-xs text-gray-500">1 hour ago</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
+
+    <script>
+        // Initialize Charts
+        document.addEventListener('DOMContentLoaded', () => {
+            // Member Growth Chart
+            const memberCtx = document.getElementById('memberGrowthChart').getContext('2d');
+            new Chart(memberCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Total Members',
+                        data: [1500, 1700, 1900, 2200, 2500, 2847],
+                        borderColor: '#3B82F6',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                display: true,
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Revenue Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(revenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [15000, 18000, 20000, 22000, 24000, 24891],
+                        backgroundColor: '#8B5CF6',
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZeroscales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                display: true,
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        // Authentication Check
+        function checkAuth() {
+            const currentUser = sessionStorage.getItem('currentUser');
+            if (!currentUser || currentUser !== 'Ghost') {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Initialize Dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            initializeNotifications();
+            initializeSearchFunction();
+            initializeRealTimeUpdates();
+        });
+
+        // Notifications System
+        function initializeNotifications() {
+            const notificationBell = document.querySelector('.fa-bell').parentElement;
+            const notifications = [
+                { type: 'info', message: 'New member joined', time: '2 minutes ago' },
+                { type: 'warning', message: 'System update required', time: '5 minutes ago' },
+                { type: 'success', message: 'Backup completed', time: '10 minutes ago' }
+            ];
+
+            notificationBell.addEventListener('click', () => {
+                const notificationPanel = document.createElement('div');
+                notificationPanel.className = 'absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50 fade-enter';
+                notificationPanel.style.top = '100%';
+                
+                let notificationHTML = `
+                    <div class="p-4 border-b border-gray-100">
+                        <h3 class="text-lg font-semibold">Notifications</h3>
+                    </div>
+                    <div class="max-h-96 overflow-y-auto">
+                `;
+
+                notifications.forEach(notification => {
+                    notificationHTML += `
+                        <div class="p-4 border-b border-gray-100 hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-info-circle text-blue-500"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-800">${notification.message}</p>
+                                    <p class="text-xs text-gray-500">${notification.time}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                notificationHTML += `</div>`;
+                notificationPanel.innerHTML = notificationHTML;
+
+                // Remove existing panel if it exists
+                const existingPanel = document.querySelector('.notification-panel');
+                if (existingPanel) {
+                    existingPanel.remove();
+                }
+
+                notificationBell.parentElement.appendChild(notificationPanel);
+                notificationPanel.classList.add('notification-panel');
+
+                // Close panel when clicking outside
+                document.addEventListener('click', function closePanel(e) {
+                    if (!notificationPanel.contains(e.target) && !notificationBell.contains(e.target)) {
+                        notificationPanel.remove();
+                        document.removeEventListener('click', closePanel);
+                    }
+                });
+            });
+        }
+
+        // Search Functionality
+        function initializeSearchFunction() {
+            const searchInput = document.querySelector('input[type="text"]');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                // Add your search logic here
+                console.log('Searching for:', searchTerm);
+            });
+        }
+
+        // Real-time Updates Simulation
+        function initializeRealTimeUpdates() {
+            setInterval(() => {
+                // Update active sessions randomly
+                const activeSessionsElement = document.querySelector(':contains("Active Sessions")').nextElementSibling;
+                const currentSessions = parseInt(activeSessionsElement.textContent);
+                const sessionChange = Math.floor(Math.random() * 21) - 10; // Random change between -10 and +10
+                activeSessionsElement.textContent = Math.max(0, currentSessions + sessionChange);
+
+                // Update notification dots
+                const dots = document.querySelectorAll('.notification-dot');
+                dots.forEach(dot => {
+                    if (Math.random() > 0.7) { // 30% chance to toggle visibility
+                        dot.classList.toggle('hidden');
+                    }
+                });
+            }, 5000); // Update every 5 seconds
+        }
+
+        // Logout Function
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // Initialize Tooltips
+        const tooltips = document.querySelectorAll('[data-tooltip]');
+        tooltips.forEach(tooltip => {
+            tooltip.addEventListener('mouseenter', (e) => {
+                const tooltipText = e.target.getAttribute('data-tooltip');
+                const tooltipElement = document.createElement('div');
+                tooltipElement.className = 'absolute bg-gray-800 text-white px-2 py-1 rounded text-sm z-50';
+                tooltipElement.textContent = tooltipText;
+                tooltipElement.style.top = `${e.target.offsetTop - 30}px`;
+                tooltipElement.style.left = `${e.target.offsetLeft + e.target.offsetWidth / 2}px`;
+                document.body.appendChild(tooltipElement);
+                
+                e.target.addEventListener('mouseleave', () => {
+                    tooltipElement.remove();
+                });
+            });
+        });
+    </script>
 </body>
 </html>
