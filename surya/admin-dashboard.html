@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surya Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-gray-800 text-white">
+            <div class="p-6">
+                <h1 class="text-2xl font-semibold">Surya Dashboard</h1>
+                <p class="text-gray-400 text-sm mt-1">Welcome back!</p>
+            </div>
+            <nav class="mt-6">
+                <a href="#" class="flex items-center px-6 py-3 text-gray-100 bg-gray-700">
+                    <span class="mx-3">Dashboard</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 text-gray-400 hover:bg-gray-700">
+                    <span class="mx-3">Analytics</span>
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 text-gray-400 hover:bg-gray-700">
+                    <span class="mx-3">Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-hidden">
+            <!-- Top Bar -->
+            <div class="bg-white shadow-sm">
+                <div class="p-4 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-semibold" id="greeting">Loading...</h2>
+                        <p class="text-sm text-gray-500" id="lastLogin">Last login: Loading...</p>
+                    </div>
+                    <button onclick="handleLogout()" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="p-6 overflow-y-auto" style="height: calc(100vh - 73px)">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white rounded-lg p-6 shadow-sm">
+                        <h3 class="text-gray-500 text-sm">Total Visitors</h3>
+                        <p class="text-2xl font-semibold mt-2" id="totalVisitors">Loading...</p>
+                    </div>
+                    <div class="bg-white rounded-lg p-6 shadow-sm">
+                        <h3 class="text-gray-500 text-sm">Active Users</h3>
+                        <p class="text-2xl font-semibold mt-2" id="activeUsers">Loading...</p>
+                    </div>
+                    <div class="bg-white rounded-lg p-6 shadow-sm">
+                        <h3 class="text-gray-500 text-sm">Bounce Rate</h3>
+                        <p class="text-2xl font-semibold mt-2" id="bounceRate">Loading...</p>
+                    </div>
+                    <div class="bg-white rounded-lg p-6 shadow-sm">
+                        <h3 class="text-gray-500 text-sm">Avg. Session</h3>
+                        <p class="text-2xl font-semibold mt-2" id="avgSession">Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Visitor Trends</h3>
+                        <canvas id="visitorChart" height="300"></canvas>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-lg font-semibold mb-4">Page Views</h3>
+                        <canvas id="pageViewsChart" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Table -->
+                <div class="bg-white rounded-lg shadow-sm">
+                    <div class="p-6">
+                        <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full" id="activityTable">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Page</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Views</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200" id="activityTableBody">
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
