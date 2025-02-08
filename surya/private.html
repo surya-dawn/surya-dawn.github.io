@@ -19,6 +19,7 @@
             border: 1px solid rgba(255, 255, 255, 0.18);
         }
     </style>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com;">
 </head>
 <body class="flex items-center justify-center">
     <main class="container mx-auto px-4 py-8">
@@ -27,239 +28,64 @@
                 <h1 class="text-3xl font-semibold text-gray-800 mb-2">Surya Members</h1>
                 <p class="text-gray-600">Enter your credentials to access the private section</p>
             </div>
-
             <form id="loginForm" class="space-y-6">
                 <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
-                        Username
-                    </label>
-                    <input type="text" id="username" 
-                           class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-                           placeholder="Enter your username"
-                           autocomplete="off"
-                           maxlength="20">
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input type="text" id="username" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent" placeholder="Enter your username" autocomplete="off" maxlength="20">
                 </div>
-
                 <div>
-                    <label for="pin" class="block text-sm font-medium text-gray-700 mb-1">
-                        PIN
-                    </label>
-                    <input type="password" id="pin" 
-                           class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-                           placeholder="Enter your 4-digit PIN"
-                           maxlength="4"
-                           autocomplete="off">
+                    <label for="pin" class="block text-sm font-medium text-gray-700 mb-1">PIN</label>
+                    <input type="password" id="pin" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent" placeholder="Enter your 4-digit PIN" maxlength="4" autocomplete="off">
                 </div>
-
                 <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-                        Password
-                    </label>
-                    <input type="password" id="password"
-                           class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-                           placeholder="Enter your password"
-                           autocomplete="off"
-                           maxlength="30">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="password" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent" placeholder="Enter your password" autocomplete="off" maxlength="30">
                 </div>
-
-                <button type="submit" 
-                        class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-medium py-2 px-4 rounded-lg hover:opacity-90 transition duration-300">
-                    Access Private Section
-                </button>
+                <button type="submit" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-medium py-2 px-4 rounded-lg hover:opacity-90 transition duration-300">Access Private Section</button>
             </form>
-
             <div id="errorMessage" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded-lg text-center"></div>
         </div>
     </main>
-
     <script>
-        // Authentication module with enhanced security
-        window.auth = {
-            // Allowed users database with exact credentials
-            users: {
-                'Ghost': {
-                    pin: '2011',
-                    password: 'ghost101',
-                    role: 'admin'
+        (function() {
+            'use strict';
+            const debugProtection = {
+                init() {
+                    this.preventDevTools();
+                    this.preventViewSource();
+                    this.preventRightClick();
+                    this.preventInspect();
                 },
-                'Dan': {
-                    pin: '1011',
-                    password: 'draenor',
-                    role: 'member'
-                },
-                'Dakirb': {
-                    pin: '8089',
-                    password: 'gurasuraisu',
-                    role: 'member'
-                }
-            },
-
-            validateCredentials(username, pin, password) {
-                // Sanitize and validate inputs
-                username = username.trim();
-                pin = pin.trim();
-                password = password.trim();
-
-                // Check for empty fields
-                if (!username || !pin || !password) {
-                    throw new Error('All fields are required');
-                }
-
-                // Check username format
-                if (!/^[a-zA-Z0-9]{1,20}$/.test(username)) {
-                    throw new Error('Invalid username format');
-                }
-
-                // Check PIN format
-                if (!/^\d{4}$/.test(pin)) {
-                    throw new Error('PIN must be exactly 4 digits');
-                }
-
-                // Check if user exists (case sensitive)
-                const user = this.users[username];
-                if (!user) {
-                    throw new Error('Access denied');
-                }
-
-                // Validate PIN
-                if (user.pin !== pin) {
-                    throw new Error('Access denied');
-                }
-
-                // Validate password (case sensitive)
-                if (user.password !== password) {
-                    throw new Error('Access denied');
-                }
-
-                return true;
-            },
-
-            async loginUser(username) {
-                // Add small random delay for security
-                const delay = Math.floor(Math.random() * 500) + 500;
-                await new Promise(resolve => setTimeout(resolve, delay));
-                
-                // Clear any existing sessions
-                this.logout();
-                
-                // Set new session
-                sessionStorage.setItem('currentUser', username);
-                sessionStorage.setItem('loginTime', Date.now().toString());
-                
-                return {
-                    username,
-                    role: this.users[username].role
-                };
-            },
-
-            isAuthenticated() {
-                const currentUser = sessionStorage.getItem('currentUser');
-                const loginTime = sessionStorage.getItem('loginTime');
-                
-                if (!currentUser || !loginTime) {
-                    return false;
-                }
-
-                // Validate the user still exists
-                return this.users.hasOwnProperty(currentUser);
-            },
-
-            logout() {
-                sessionStorage.clear();
-            }
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Clear any existing sessions on page load
-            window.auth.logout();
-
-            const loginForm = document.getElementById('loginForm');
-            const errorMessage = document.getElementById('errorMessage');
-            let loginAttempts = 0;
-            let lastAttemptTime = 0;
-
-            // Handle form submission
-            loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-
-                // Rate limiting
-                const now = Date.now();
-                if (now - lastAttemptTime < 2000) { // 2 second cooldown
-                    showError('Please wait before trying again');
-                    return;
-                }
-                lastAttemptTime = now;
-
-                // Track login attempts
-                loginAttempts++;
-                if (loginAttempts > 5) {
-                    showError('Too many login attempts. Please try again later.');
-                    loginForm.querySelector('button[type="submit"]').disabled = true;
-                    setTimeout(() => {
-                        loginAttempts = 0;
-                        loginForm.querySelector('button[type="submit"]').disabled = false;
-                    }, 30000); // 30 second lockout
-                    return;
-                }
-                
-                const username = document.getElementById('username').value;
-                const pin = document.getElementById('pin').value;
-                const password = document.getElementById('password').value;
-
-                try {
-                    // Validate credentials
-                    if (window.auth.validateCredentials(username, pin, password)) {
-                        const submitButton = loginForm.querySelector('button[type="submit"]');
-                        submitButton.textContent = 'Logging in...';
-                        submitButton.disabled = true;
-
-                        const userData = await window.auth.loginUser(username);
-                        
-                        // Redirect based on role
-                        if (userData.role === 'admin') {
-                            window.location.href = 'admin-dashboard.html';
-                        } else {
-                            window.location.href = 'https://yfsurya.github.io/suryal/surya/members-area;
+                preventDevTools() {
+                    setInterval(() => {
+                        const threshold = 160;
+                        if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+                            document.body.innerHTML = 'Security violation detected';
                         }
-                    }
-                } catch (error) {
-                    showError(error.message);
-                }
-            });
-
-            // Handle PIN input - only allow numbers
-            const pinInput = document.getElementById('pin');
-            pinInput.addEventListener('input', (e) => {
-                e.target.value = e.target.value.replace(/[^0-9]/g, '').slice(0, 4);
-            });
-
-            // Show error message
-            function showError(message) {
-                errorMessage.textContent = message;
-                errorMessage.classList.remove('hidden');
-                setTimeout(() => {
-                    errorMessage.classList.add('hidden');
-                }, 3000);
-            }
-
-            // Add enter key support
-            const inputs = document.querySelectorAll('input');
-            inputs.forEach((input, index) => {
-                input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
+                    }, 1000);
+                },
+                preventViewSource() {
+                    document.addEventListener('keydown', function(e) {
+                        if ((e.ctrlKey && (e.keyCode == 85 || e.keyCode == 83 || e.keyCode == 73)) || e.keyCode == 123) {
+                            e.preventDefault();
+                        }
+                    });
+                },
+                preventRightClick() {
+                    document.addEventListener('contextmenu', function(e) {
                         e.preventDefault();
-                        if (index < inputs.length - 1) {
-                            inputs[index + 1].focus();
-                        } else {
-                            loginForm.querySelector('button[type="submit"]').click();
+                    });
+                },
+                preventInspect() {
+                    document.addEventListener('keydown', function(e) {
+                        if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                            e.preventDefault();
                         }
-                    }
-                });
-            });
-
-            // Prevent form autocomplete
-            loginForm.setAttribute('autocomplete', 'off');
-        });
+                    });
+                }
+            };
+            debugProtection.init();
+        })();
     </script>
 </body>
 </html>
