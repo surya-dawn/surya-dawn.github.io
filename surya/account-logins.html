@@ -1,176 +1,155 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Activity</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 p-6">
-    <div class="max-w-5xl mx-auto bg-white rounded-xl shadow-lg p-6">
-        <div class="flex items-center justify-between mb-4 border-b pb-4">
-            <h3 class="text-xl font-semibold text-gray-800">Recent Login Activity</h3>
-            <div class="flex items-center space-x-3">
-                <span id="activeUsersCount" class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                    2 Active Users
-                </span>
-                <button onclick="clearLoginHistory()" class="text-sm text-red-500 hover:text-red-700 font-medium">
-                    Clear History
-                </button>
+import React, { useState, useEffect } from 'react';
+import { Activity, Users, Clock, MapPin } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+
+const LoginActivityTracker = () => {
+  const [loginHistory, setLoginHistory] = useState([]);
+  const [activeUsers, setActiveUsers] = useState(new Set());
+
+  useEffect(() => {
+    // Load initial history
+    loadLoginHistory();
+    // Start monitoring for inactive sessions
+    const interval = setInterval(checkActiveSessions, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadLoginHistory = () => {
+    const savedHistory = JSON.parse(localStorage.getItem('loginHistory') || '[]');
+    setLoginHistory(savedHistory);
+    updateActiveSessions(savedHistory);
+  };
+
+  const updateActiveSessions = (history) => {
+    const activeSessionIds = new Set(
+      history
+        .filter(record => {
+          const loginTime = new Date(record.timestamp);
+          const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+          return loginTime > thirtyMinutesAgo;
+        })
+        .map(record => record.sessionId)
+    );
+    setActiveUsers(activeSessionIds);
+  };
+
+  const checkActiveSessions = () => {
+    const updatedHistory = loginHistory.map(record => ({
+      ...record,
+      status: isSessionActive(record.timestamp) ? 'Active' : 'Inactive'
+    }));
+    setLoginHistory(updatedHistory);
+    updateActiveSessions(updatedHistory);
+    localStorage.setItem('loginHistory', JSON.stringify(updatedHistory));
+  };
+
+  const isSessionActive = (timestamp) => {
+    const loginTime = new Date(timestamp);
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+    return loginTime > thirtyMinutesAgo;
+  };
+
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMinutes = Math.floor((now - date) / 60000);
+
+    if (diffMinutes < 1) return 'Just now';
+    if (diffMinutes < 60) return `${diffMinutes}m ago`;
+    if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
+    return date.toLocaleDateString();
+  };
+
+  const clearHistory = () => {
+    if (window.confirm('Are you sure you want to clear the login history?')) {
+      setLoginHistory([]);
+      setActiveUsers(new Set());
+      localStorage.setItem('loginHistory', '[]');
+    }
+  };
+
+  return (
+    <div className="p-4">
+      <Card className="bg-white/90 shadow-lg">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-xl font-semibold">Login Activity</CardTitle>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4 text-green-500" />
+              <span className="text-sm font-medium text-green-600">
+                {Array.from(activeUsers).length} Active Users
+              </span>
             </div>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full border-collapse">
-                <thead>
-                    <tr class="text-left text-gray-600 bg-gray-200 text-sm">
-                        <th class="p-3">Username</th>
-                        <th class="p-3">Role</th>
-                        <th class="p-3">Login Time</th>
-                        <th class="p-3">Status</th>
-                        <th class="p-3">Location</th>
-                    </tr>
-                </thead>
-                <tbody id="loginActivityTable" class="text-sm text-gray-700">
-                    <!-- Login activity will be populated here -->
-                </tbody>
-            </table>
-        </div>
+            <button
+              onClick={clearHistory}
+              className="text-sm text-gray-500 hover:text-gray-700"
+            >
+              Clear History
+            </button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {loginHistory.length === 0 ? (
+              <div className="text-center text-gray-500 py-8">
+                No login activity recorded
+              </div>
+            ) : (
+              loginHistory.map((login) => (
+                <div
+                  key={login.sessionId}
+                  className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      login.role === 'admin' ? 'bg-purple-100' : 'bg-blue-100'
+                    }`}>
+                      <span className={`font-semibold ${
+                        login.role === 'admin' ? 'text-purple-600' : 'text-blue-600'
+                      }`}>
+                        {login.username[0].toUpperCase()}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium">{login.username}</p>
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Users className="h-3 w-3" />
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${
+                          login.role === 'admin' 
+                            ? 'bg-purple-100 text-purple-700' 
+                            : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {login.role}
+                        </span>
+                        <Clock className="h-3 w-3 ml-2" />
+                        <span>{formatTimestamp(login.timestamp)}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${
+                      isSessionActive(login.timestamp)
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        isSessionActive(login.timestamp) ? 'bg-green-500' : 'bg-gray-500'
+                      }`} />
+                      {isSessionActive(login.timestamp) ? 'Active' : 'Inactive'}
+                    </span>
+                    <div className="flex items-center gap-1 text-gray-500">
+                      <MapPin className="h-4 w-4" />
+                      <span className="text-sm">{login.location}</span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
+  );
+};
 
-    <script>
-        class LoginTracker {
-            constructor() {
-                this.loginHistory = JSON.parse(localStorage.getItem('loginHistory')) || [];
-                this.activeUsers = new Set();
-                this.initializeTracker();
-            }
-
-            initializeTracker() {
-                this.updateActiveUsersCount();
-                this.displayLoginHistory();
-                this.startActivityMonitoring();
-            }
-
-            async recordLogin(username, role) {
-                const timestamp = new Date().toISOString();
-                const location = await this.getLocation();
-                
-                const loginRecord = {
-                    username, role, timestamp, status: 'Active', location,
-                    sessionId: Math.random().toString(36).substr(2, 9)
-                };
-                
-                this.loginHistory.unshift(loginRecord);
-                this.activeUsers.add(loginRecord.sessionId);
-                if (this.loginHistory.length > 50) this.loginHistory.pop();
-                this.saveHistory();
-                this.updateDisplay();
-            }
-
-            async getLocation() {
-                try {
-                    const response = await fetch('https://ipapi.co/json/');
-                    const data = await response.json();
-                    return `${data.city}, ${data.country_code}`;
-                } catch (error) {
-                    return 'Unknown Location';
-                }
-            }
-
-            updateActiveUsersCount() {
-                document.getElementById('activeUsersCount').textContent = 
-                    `${this.activeUsers.size} Active User${this.activeUsers.size !== 1 ? 's' : ''}`;
-            }
-
-            displayLoginHistory() {
-                const tableBody = document.getElementById('loginActivityTable');
-                if (!tableBody) return;
-                
-                tableBody.innerHTML = this.loginHistory.map(record => `
-                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                        <td class="p-3 flex items-center">
-                            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-semibold mr-3">
-                                ${record.username.charAt(0).toUpperCase()}
-                            </div>
-                            ${record.username}
-                        </td>
-                        <td class="p-3">
-                            <span class="px-2 py-1 rounded-full text-xs font-medium text-white bg-${record.role === 'admin' ? 'purple' : 'blue'}-500">
-                                ${record.role}
-                            </span>
-                        </td>
-                        <td class="p-3">${this.formatTimestamp(record.timestamp)}</td>
-                        <td class="p-3">
-                            <span class="flex items-center">
-                                <span class="w-2 h-2 rounded-full ${this.isActive(record.sessionId) ? 'bg-green-400' : 'bg-gray-400'} mr-2"></span>
-                                ${this.isActive(record.sessionId) ? 'Active' : 'Inactive'}
-                            </span>
-                        </td>
-                        <td class="p-3">${record.location}</td>
-                    </tr>
-                `).join('');
-            }
-
-            formatTimestamp(timestamp) {
-                const date = new Date(timestamp);
-                const now = new Date();
-                const diffMinutes = Math.floor((now - date) / 60000);
-                
-                if (diffMinutes < 1) return 'Just now';
-                if (diffMinutes < 60) return `${diffMinutes}m ago`;
-                if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
-                return date.toLocaleDateString();
-            }
-
-            isActive(sessionId) {
-                return this.activeUsers.has(sessionId);
-            }
-
-            startActivityMonitoring() {
-                setInterval(() => {
-                    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-                    this.loginHistory.forEach(record => {
-                        if (new Date(record.timestamp) < thirtyMinutesAgo) {
-                            this.activeUsers.delete(record.sessionId);
-                        }
-                    });
-                    this.updateDisplay();
-                }, 60000);
-            }
-
-            updateDisplay() {
-                this.updateActiveUsersCount();
-                this.displayLoginHistory();
-                this.saveHistory();
-            }
-
-            saveHistory() {
-                localStorage.setItem('loginHistory', JSON.stringify(this.loginHistory));
-            }
-
-            clearHistory() {
-                this.loginHistory = [];
-                this.activeUsers.clear();
-                this.updateDisplay();
-            }
-        }
-
-        const loginTracker = new LoginTracker();
-
-        function checkAuth() {
-            const currentUser = sessionStorage.getItem('currentUser');
-            if (!currentUser || currentUser !== 'Ghost') {
-                window.location.href = 'login.html';
-            } else {
-                loginTracker.recordLogin(currentUser, 'admin');
-            }
-        }
-
-        function clearLoginHistory() {
-            if (confirm('Are you sure you want to clear the login history?')) {
-                loginTracker.clearHistory();
-            }
-        }
-    </script>
-</body>
-</html>
+export default LoginActivityTracker;
