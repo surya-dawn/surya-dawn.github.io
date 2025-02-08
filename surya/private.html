@@ -41,10 +41,6 @@
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <input type="password" id="password" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent" placeholder="Enter your password" autocomplete="off" maxlength="30">
                 </div>
-                <div>
-                    <label for="securityCode" class="block text-sm font-medium text-gray-700 mb-1">Security Code</label>
-                    <input type="password" id="securityCode" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-yellow-400 focus:border-transparent" placeholder="Enter security code" autocomplete="off" maxlength="10">
-                </div>
                 <button type="submit" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-medium py-2 px-4 rounded-lg hover:opacity-90 transition duration-300">Access Private Section</button>
             </form>
             <div id="errorMessage" class="hidden mt-4 p-4 bg-red-100 text-red-700 rounded-lg text-center"></div>
@@ -54,9 +50,9 @@
         (function() {
             'use strict';
             const validUsers = {
-                "Ghost": { pin: "2011", password: "ghost101", securityCode: "admin2024" },
-                "Dan": { pin: "1011", password: "draenor", securityCode: "member123" },
-                "Dakirb": { pin: "8089", password: "gurasuraisu", securityCode: "secure789" }
+                "Ghost": { pin: "2011", password: "ghost101" },
+                "Dan": { pin: "1011", password: "draenor" },
+                "Dakirb": { pin: "8089", password: "gurasuraisu" }
             };
 
             document.getElementById("loginForm").addEventListener("submit", function(event) {
@@ -64,10 +60,9 @@
                 const username = document.getElementById("username").value;
                 const pin = document.getElementById("pin").value;
                 const password = document.getElementById("password").value;
-                const securityCode = document.getElementById("securityCode").value;
                 const errorMessage = document.getElementById("errorMessage");
 
-                if (validUsers[username] && validUsers[username].pin === pin && validUsers[username].password === password && validUsers[username].securityCode === securityCode) {
+                if (validUsers[username] && validUsers[username].pin === pin && validUsers[username].password === password) {
                     if (username === "Ghost") {
                         window.location.href = "admin-dashboard.html";
                     } else {
@@ -78,6 +73,50 @@
                     errorMessage.classList.remove("hidden");
                 }
             });
+        
+            // Anti-debugging protection
+            (function() {
+                'use strict';
+                const debugProtection = {
+                    init() {
+                        this.preventDevTools();
+                        this.preventViewSource();
+                        this.preventRightClick();
+                        this.preventInspect();
+                    },
+                    preventDevTools() {
+                        setInterval(() => {
+                            const threshold = 160;
+                            if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+                                document.body.innerHTML = 'Security violation detected';
+                            }
+                        }, 1000);
+                    },
+                    preventViewSource() {
+                        document.addEventListener('keydown', function(e) {
+                            if ((e.ctrlKey && (e.keyCode == 85 || e.keyCode == 83 || e.keyCode == 73)) || e.keyCode == 123) {
+                                e.preventDefault();
+                                return false;
+                            }
+                        });
+                    },
+                    preventRightClick() {
+                        document.addEventListener('contextmenu', function(e) {
+                            e.preventDefault();
+                            return false;
+                        });
+                    },
+                    preventInspect() {
+                        document.addEventListener('keydown', function(e) {
+                            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                                e.preventDefault();
+                                return false;
+                            }
+                        });
+                    }
+                };
+                debugProtection.init();
+            })();
         })();
     </script>
 </body>
