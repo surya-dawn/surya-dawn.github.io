@@ -3,66 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <script defer src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script defer src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script defer src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <title>Lockscreen UI</title>
     <style>
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-        }
-        #root {
-            height: 100vh;
+            padding: 0;
             display: flex;
-            align-items: center;
             justify-content: center;
-            background: url('https://source.unsplash.com/random') no-repeat center center/cover;
-        }
-        .lock-screen {
-            text-align: center;
+            align-items: center;
+            height: 100vh;
+            background: url('pics/bridge.png') no-repeat center center/cover;
+            font-family: 'Inter', sans-serif;
             color: white;
+            text-align: center;
+        }
+        .lockscreen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .date {
+            font-size: 2em;
+            font-weight: bold;
         }
         .time {
-            font-size: 4rem;
+            font-size: 5em;
+            font-weight: bold;
         }
-        .menu {
-            margin-top: 20px;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 5px;
-            border: none;
+        .menu-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
             cursor: pointer;
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    <script type="text/babel">
-        function LockScreen() {
-            const [time, setTime] = React.useState(new Date().toLocaleTimeString());
-            const [wallpaper, setWallpaper] = React.useState("https://source.unsplash.com/random");
+    <div class="menu-icon">☰</div>
+    <div class="lockscreen">
+        <div class="date" id="date"></div>
+        <div class="time" id="time"></div>
+    </div>
 
-            React.useEffect(() => {
-                const interval = setInterval(() => {
-                    setTime(new Date().toLocaleTimeString());
-                }, 1000);
-                return () => clearInterval(interval);
-            }, []);
-
-            return (
-                <div className="lock-screen" style={{ backgroundImage: `url(${wallpaper})` }}>
-                    <div className="time">{time}</div>
-                    <div className="menu">
-                        <button onClick={() => setWallpaper("https://source.unsplash.com/random")}>Change Wallpaper</button>
-                    </div>
-                </div>
-            );
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', day: 'numeric', month: 'long' };
+            document.getElementById('date').textContent = now.toLocaleDateString('en-GB', options);
+            document.getElementById('time').textContent = now.toLocaleTimeString('en-GB', { hour12: false });
         }
-
-        ReactDOM.createRoot(document.getElementById("root")).render(<LockScreen />);
+        setInterval(updateTime, 1000);
+        updateTime();
     </script>
 </body>
 </html>
