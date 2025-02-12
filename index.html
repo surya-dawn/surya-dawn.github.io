@@ -1,70 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wallpaper Manager</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.18.6/babel.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <script defer src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script defer src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script defer src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        #root {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: url('https://source.unsplash.com/random') no-repeat center center/cover;
+        }
+        .lock-screen {
+            text-align: center;
+            color: white;
+        }
+        .time {
+            font-size: 4rem;
+        }
+        .menu {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
-<body class="bg-black text-white">
-  <div id="root"></div>
-  <script type="text/babel">
-    const { useState, useEffect } = React;
-    
-    const MenuIcon = () => (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <line x1="4" y1="6" x2="20" y2="6" strokeWidth="2" />
-        <line x1="4" y1="12" x2="20" y2="12" strokeWidth="2" />
-        <line x1="4" y1="18" x2="20" y2="18" strokeWidth="2" />
-      </svg>
-    );
-    
-    const WallpaperManager = () => {
-      const [showMenu, setShowMenu] = useState(false);
-      const [time, setTime] = useState(new Date());
-    
-      useEffect(() => {
-        const interval = setInterval(() => setTime(new Date()), 1000);
-        return () => clearInterval(interval);
-      }, []);
-    
-      return (
-        <div className="relative w-full h-screen bg-black text-white flex items-center justify-center">
-          {/* Time Display */}
-          <div className="absolute top-10 text-center">
-            <p className="text-xl">{time.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
-            <p className="text-7xl font-bold tracking-wider">{time.toLocaleTimeString()}</p>
-          </div>
-          
-          {/* Menu Button */}
-          <button 
-            onClick={() => setShowMenu(!showMenu)}
-            className="absolute top-6 right-6 text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
-          >
-            <MenuIcon />
-          </button>
-          
-          {/* Menu Panel */}
-          {showMenu && (
-            <div className="absolute top-0 right-0 w-80 h-full bg-[#1c1c1e]/95 text-white p-6 backdrop-blur-sm">
-              <h2 className="text-2xl font-medium mb-8">Controls</h2>
-              <div className="space-y-6">
-                <button className="w-full text-left text-[17px] py-1">Wallpaper</button>
-                <button className="w-full text-left text-[17px] py-1">Light Mode</button>
-                <button className="w-full text-left text-[17px] py-1">Apps</button>
-                <button className="w-full text-left text-[17px] py-1">Folder</button>
-                <button className="w-full text-left text-[17px] py-1">Settings</button>
-              </div>
-            </div>
-          )}
-        </div>
-      );
-    };
-    
-    ReactDOM.render(<WallpaperManager />, document.getElementById("root"));
-  </script>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        function LockScreen() {
+            const [time, setTime] = React.useState(new Date().toLocaleTimeString());
+            const [wallpaper, setWallpaper] = React.useState("https://source.unsplash.com/random");
+
+            React.useEffect(() => {
+                const interval = setInterval(() => {
+                    setTime(new Date().toLocaleTimeString());
+                }, 1000);
+                return () => clearInterval(interval);
+            }, []);
+
+            return (
+                <div className="lock-screen" style={{ backgroundImage: `url(${wallpaper})` }}>
+                    <div className="time">{time}</div>
+                    <div className="menu">
+                        <button onClick={() => setWallpaper("https://source.unsplash.com/random")}>Change Wallpaper</button>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<LockScreen />);
+    </script>
 </body>
 </html>
