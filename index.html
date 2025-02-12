@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lockscreen UI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -30,13 +31,27 @@
         .time {
             font-size: 5em;
             font-weight: bold;
+            letter-spacing: 2px;
         }
         .menu-icon {
             position: absolute;
             top: 20px;
             right: 20px;
-            font-size: 2em;
+            font-size: 2.5em;
+            font-weight: 900;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .blink {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
         }
     </style>
 </head>
@@ -48,14 +63,35 @@
     </div>
 
     <script>
-        function updateTime() {
+        function updateDateTime() {
             const now = new Date();
-            const options = { weekday: 'long', day: 'numeric', month: 'long' };
-            document.getElementById('date').textContent = now.toLocaleDateString('en-GB', options);
-            document.getElementById('time').textContent = now.toLocaleTimeString('en-GB', { hour12: false });
+            
+            // Date formatting
+            const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
+            document.getElementById('date').textContent = now.toLocaleDateString('en-GB', dateOptions);
+
+            // Time formatting with leading zeros
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            let seconds = now.getSeconds();
+            let amPm = hours >= 12 ? 'PM' : 'AM';
+
+            // 12-hour format toggle (optional)
+            const use12HourFormat = false;
+            if (use12HourFormat) {
+                hours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
+            }
+
+            // Smooth blinking colon effect
+            const colon = seconds % 2 === 0 ? ':' : '<span class="blink">:</span>';
+            document.getElementById('time').innerHTML =
+                `${String(hours).padStart(2, '0')}${colon}${String(minutes).padStart(2, '0')}` +
+                (use12HourFormat ? ` ${amPm}` : '');
+            
+            requestAnimationFrame(updateDateTime); // High-precision time updates
         }
-        setInterval(updateTime, 1000);
-        updateTime();
+
+        updateDateTime();
     </script>
 </body>
 </html>
