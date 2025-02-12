@@ -4,18 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wallpaper Manager</title>
-  <!-- Link to Tailwind CSS for styles (optional, you can use your own styles) -->
+
+  <!-- Link to Tailwind CSS for styles -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Include React and ReactDOM from CDN -->
   <script src="https://unpkg.com/react@18.2.0/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
 
-  <!-- Babel for compiling JSX (React-specific syntax) -->
+  <!-- Babel for compiling JSX -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.18.6/babel.min.js"></script>
 
   <style>
-    /* Optional: Tailwind or custom CSS styles can be added here */
     body {
       margin: 0;
       font-family: sans-serif;
@@ -190,16 +190,13 @@
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20">
                         <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
                           <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="black">
-                            <path d="M4 8l3 3 5-5" strokeWidth="2" />
+                            <path d="M4 6l4 4 4-4" strokeWidth="1.5" />
                           </svg>
                         </div>
                       </div>
                     )}
                   </button>
                 ))}
-                <button className="w-14 h-14 bg-black/30 rounded-xl flex items-center justify-center text-white text-2xl backdrop-blur-sm">
-                  +
-                </button>
               </div>
             </div>
           )}
@@ -207,7 +204,7 @@
       );
     };
 
-    // Mount the component to the root element
+    // Render the app to the DOM
     ReactDOM.render(<WallpaperManager />, document.getElementById('root'));
   </script>
 </body>
