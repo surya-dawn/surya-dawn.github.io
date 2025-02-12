@@ -90,6 +90,10 @@
             align-items: center;
             font-size: 2em;
         }
+        .light-mode {
+            background: linear-gradient(to right, #f5f5f5, #e0e0e0) !important;
+            color: black !important;
+        }
     </style>
 </head>
 <body>
@@ -104,6 +108,9 @@
     <div class="menu" id="menu">
         <h2>Wallpaper Options</h2>
         <button id="upload-btn">Upload Your Own</button>
+        <br><br>
+        <h2>Settings</h2>
+        <button onclick="toggleLightMode()">Toggle Light Mode</button>
     </div>
 
     <!-- Wallpaper Selection -->
@@ -157,6 +164,11 @@
             };
             input.click();
         });
+
+        // Toggle light/dark mode
+        function toggleLightMode() {
+            document.body.classList.toggle("light-mode");
+        }
     </script>
 
 </body>
