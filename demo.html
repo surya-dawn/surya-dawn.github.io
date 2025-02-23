@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Neon Battle Arena</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #0a0a2a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+        }
+        
+        #gameCanvas {
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 20px #00ff88;
+        }
+        
+        .game-container {
+            position: relative;
+        }
+        
+        .hud {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+        }
+        
+        .player-stats {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .health-bar {
+            width: 200px;
+            height: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid #fff;
+            position: relative;
+        }
+        
+        .health-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .player1-health {
+            background: #00ff88;
+        }
+        
+        .player2-health {
+            background: #ff0088;
+        }
+        
+        .power-up {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .menu {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+        .menu.active {
+            display: block;
+        }
+        
+        .btn {
+            background: #00ff88;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            color: #fff;
+            font-size: 16px;
+            text-align: center;
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+        }
+        
+        .special-effect {
+            position: absolute;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="hud">
+            <div class="player-stats">
+                <div>P1 Score: <span id="player1Score">0</span></div>
+                <div class="health-bar">
+                    <div id="player1Health" class="health-fill player1-health" style="width: 100%"></div>
+                </div>
+            </div>
+            <div class="player-stats">
+                <div class="health-bar">
+                    <div id="player2Health" class="health-fill player2-health" style="width: 100%"></div>
+                </div>
+                <div>P2 Score: <span id="player2Score">0</span></div>
+            </div>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+    </div>
+    
+    <div id="menu" class="menu">
+        <h1>Neon Battle Arena</h1>
+        <button class="btn" onclick="startGame()">Start Game</button>
+        <button class="btn" onclick="showControls()">Controls</button>
+    </div>
+    
+    <div class="controls">
+        Player 1: WASD to move, F to shoot, E for special ability | Player 2: Arrow keys to move, Space to shoot, Enter for special ability
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size with better resolution
+        canvas.width = 1024;
+        canvas.height = 768;
+        
+        // Game state
+        let gameStarted = false;
+        let powerUps = [];
+        let particles = [];
+        
+        let player1 = {
+            x: 100,
+            y: canvas.height/2,
+            speed: 5,
+            size: 30,
+            color: '#00ff88',
+            score: 0,
+            health: 100,
+            projectiles: [],
+            specialAbility: {
+                active: false,
+                cooldown: 0,
+                duration: 120,
+                shield: false
+            }
+        };
+        
+        let player2 = {
+            x: canvas.width - 100,
+            y: canvas.height/2,
+            speed: 5,
+            size: 30,
+            color: '#ff0088',
+            score: 0,
+            health: 100,
+            projectiles: [],
+            specialAbility: {
+                active: false,
+                cooldown: 0,
+                duration: 120,
+                shield: false
+            }
+        };
+        
+        // Power-up types
+        const powerUpTypes = [
+            { type: 'speed', color: '#ffff00', duration: 300 },
+            { type: 'shield', color: '#00ffff', duration: 300 },
+            { type: 'multishot', color: '#ff00ff', duration: 300 }
+        ];
+        
+        // Input handling with smoother controls
+        let keys = {};
+        let previousKeys = {};
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            
+            // Prevent scrolling with arrow keys
+            if(['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.code) > -1) {
+                e.preventDefault();
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+        
+        function startGame() {
+            gameStarted = true;
+            document.getElementById('menu').style.display = 'none';
+            resetGame();
+            gameLoop();
+        }
+        
+        function showControls() {
+            alert('Player 1:\nMove: WASD\nShoot: F\nSpecial Ability: E\n\nPlayer 2:\nMove: Arrow Keys\nShoot: Space\nSpecial Ability: Enter');
+        }
+        
+        function resetGame() {
+            player1.health = 100;
+            player2.health = 100;
+            player1.score = 0;
+            player2.score = 0;
+            updateHealthBars();
+            resetPositions();
+        }
+        
+        function updateHealthBars() {
+            document.getElementById('player1Health').style.width = player1.health + '%';
+            document.getElementById('player2Health').style.width = player2.health + '%';
+        }
+        
+        // Game loop with better timing
+        let lastTime = 0;
+        function gameLoop(timestamp) {
+            if (!lastTime) lastTime = timestamp;
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+            
+            update(deltaTime);
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function update(deltaTime) {
+            if (!gameStarted) return;
+            
+            updatePlayers(deltaTime);
+            updateProjectiles();
+            updatePowerUps(deltaTime);
+            updateParticles(deltaTime);
+            checkCollisions();
+            spawnPowerUps();
+        }
+        
+        function updatePlayers(deltaTime) {
+            // Player 1 movement with momentum
+            if (keys['w']) player1.y -= player1.speed * (player1.speedBoost ? 1.5 : 1);
+            if (keys['s']) player1.y += player1.speed * (player1.speedBoost ? 1.5 : 1);
+            if (keys['a']) player1.x -= player1.speed * (player1.speedBoost ? 1.5 : 1);
+            if (keys['d']) player1.x += player1.speed * (player1.speedBoost ? 1.5 : 1);
+            
+            // Player 2 movement
+            if (keys['ArrowUp']) player2.y -= player2.speed * (player2.speedBoost ? 1.5 : 1);
+            if (keys['ArrowDown']) player2.y += player2.speed * (player2.speedBoost ? 1.5 : 1);
+            if (keys['ArrowLeft']) player2.x -= player2.speed * (player2.speedBoost ? 1.5 : 1);
+            if (keys['ArrowRight']) player2.x += player2.speed * (player2.speedBoost ? 1.5 : 1);
+            
+            // Keep players in bounds with bounce effect
+            keepPlayerInBounds(player1);
+            keepPlayerInBounds(player2);
+            
+            // Special abilities
+            updateSpecialAbilities(deltaTime);
+            
+            // Shooting with cooldown
+            if (keys['f'] && !previousKeys['f']) {
+                shoot(player1, player2);
+            }
+            
+            if (keys[' '] && !previousKeys[' ']) {
+                shoot(player2, player1);
+            }
+            
+            // Update previous keys state
+            for (let key in keys) {
+                previousKeys[key] = keys[key];
+            }
+        }
+        
+        function keepPlayerInBounds(player) {
+            if (player.x < player.size) {
+                player.x = player.size;
+                createBounceParticles(player.x, player.y, player.color);
+            }
+            if (player.x > canvas.width - player.size) {
+                player.x = canvas.width - player.size;
+                createBounceParticles(player.x, player.y, player.color);
+            }
+            if (player.y < player.size) {
+                player.y = player.size;
+                createBounceParticles(player.x, player.y, player.color);
+            }
+            if (player.y > canvas.height - player.size) {
+                player.y = canvas.height - player.size;
+                createBounceParticles(player.x, player.y, player.color);
+            }
+        }
+        
+        function shoot(shooter, target) {
+            if (shooter.projectiles.length < (shooter.multishot ? 5 : 3)) {
+                const angle = Math.atan2(target.y - shooter.y, target.x - shooter.x);
+                shooter.projectiles.push({
+                    x: shooter.x,
+                    y: shooter.y,
+                    speed: 8,
+                    direction: angle,
+                    size: 5,
+                    color: shooter.color
+                });
+                
+                createShootParticles(shooter.x, shooter.y, shooter.color);
+            }
+        }
+        
+        function updateSpecialAbilities(deltaTime) {
+            // Player 1 special ability
+            if (keys['e'] && player1.specialAbility.cooldown <= 0) {
+                activateSpecialAbility(player1);
+            }
+            
+            // Player 2 special ability
+            if (keys['Enter'] && player2.specialAbility.cooldown <= 0) {
+                activateSpecialAbility(player2);
+            }
+            
+            // Update cooldowns
+            if (player1.specialAbility.cooldown > 0) player1.specialAbility.cooldown--;
+            if (player2.specialAbility.cooldown > 0) player2.specialAbility.cooldown--;
+            
+            // Update active abilities
+            if (player1.specialAbility.active) {
+                player1.specialAbility.duration--;
+                if (player1.specialAbility.duration <= 0) {
+                    deactivateSpecialAbility(player1);
+                }
+            }
+            
+            if (player2.specialAbility.active) {
+                player2.specialAbility.duration--;
+                if (player2.specialAbility.duration <= 0) {
+                    deactivateSpecialAbility(player2);
+                }
+            }
+        }
+        
+        function activateSpecialAbility(player) {
+            player.specialAbility.active = true;
+            player.specialAbility.shield = true;
+            player.specialAbility.cooldown = 300;
+            createSpecialEffect(player);
+        }
+        
+        function deactivateSpecialAbility(player) {
+            player.specialAbility.active = false;
+            player.specialAbility.shield = false;
+            player.specialAbility.duration = 120;
+        }
+        
+        function createSpecialEffect(player) {
+            for (let i = 0; i < 20; i++) {
+                const angle = (Math.PI * 2 * i) / 20;
+                particles.push({
+                    x: player.x,
+                    y: player.y,
+                    speed: 3,
+                    direction: angle,
+                    size: 3,
+                    color: player.color,
+                    life: 60,
+                    type: 'special'
+                });
+            }
+        }
+        
+        function updateProjectiles() {
+            updatePlayerProjectiles(player1);
+            updatePlayerProjectiles(player2);
+        }
+        
+        function updatePlayerProjectiles(player) {
+            for (let i = player.projectiles.length - 1; i >=
+0; i--) {
+                let proj = player.projectiles[i];
+                proj.x += Math.cos(proj.direction) * proj.speed;
+                proj.y += Math.sin(proj.direction) * proj.speed;
+                
+                // Create trail particles
+                createProjectileTrail(proj);
+                
+                // Remove projectiles that are off screen
+                if (proj.x < 0 || proj.x > canvas.width || proj.y < 0 || proj.y > canvas.height) {
+                    player.projectiles.splice(i, 1);
+                }
+            }
+        }
+        
+        function createProjectileTrail(proj) {
+            particles.push({
+                x: proj.x,
+                y: proj.y,
+                speed: 0,
+                size: proj.size * 0.8,
+                color: proj.color,
+                life: 20,
+                type: 'trail'
+            });
+        }
+        
+        function updatePowerUps(deltaTime) {
+            // Update existing power-ups
+            for (let i = powerUps.length - 1; i >= 0; i--) {
+                powerUps[i].life--;
+                if (powerUps[i].life <= 0) {
+                    powerUps.splice(i, 1);
+                }
+            }
+        }
+        
+        function spawnPowerUps() {
+          // Random power-up spawning
+            if (Math.random() < 0.005 && powerUps.length < 3) {
+                const powerUpType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+                powerUps.push({
+                    x: Math.random() * (canvas.width - 60) + 30,
+                    y: Math.random() * (canvas.height - 60) + 30,
+                    type: powerUpType.type,
+                    color: powerUpType.color,
+                    duration: powerUpType.duration,
+                    life: 600,
+                    size: 20
+                });
+            }
+        }
+        
+        function updateParticles(deltaTime) {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                
+                if (particle.type === 'special') {
+                    particle.x += Math.cos(particle.direction) * particle.speed;
+                    particle.y += Math.sin(particle.direction) * particle.speed;
+                }
+                
+                particle.life--;
+                particle.size *= 0.95;
+                
+                if (particle.life <= 0 || particle.size < 0.5) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+        
+        function checkCollisions() {
+            // Check projectile collisions
+            checkProjectileCollisions(player1, player2);
+            checkProjectileCollisions(player2, player1);
+            
+            // Check power-up collisions
+            checkPowerUpCollisions(player1);
+            checkPowerUpCollisions(player2);
+        }
+        
+        function checkProjectileCollisions(shooter, target) {
+            for (let i = shooter.projectiles.length - 1; i >= 0; i--) {
+                let proj = shooter.projectiles[i];
+                let dx = proj.x - target.x;
+                let dy = proj.y - target.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < target.size) {
+                    // Check if target has shield active
+                    if (!target.specialAbility.shield) {
+                        target.health -= 20;
+                        createHitEffect(proj.x, proj.y, target.color);
+                        updateHealthBars();
+                        
+                        if (target.health <= 0) {
+                            shooter.score++;
+                            document.getElementById(shooter === player1 ? 'player1Score' : 'player2Score').textContent = shooter.score;
+                            createExplosionEffect(target.x, target.y, target.color);
+                            resetRound();
+                        }
+                    } else {
+                        createShieldEffect(target.x, target.y, target.color);
+                    }
+                    
+                    shooter.projectiles.splice(i, 1);
+                }
+            }
+        }
+        
+        function checkPowerUpCollisions(player) {
+            for (let i = powerUps.length - 1; i >= 0; i--) {
+                let powerUp = powerUps[i];
+                let dx = powerUp.x - player.x;
+                let dy = powerUp.y - player.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < player.size + powerUp.size) {
+                    applyPowerUp(player, powerUp);
+                    createPowerUpEffect(powerUp.x, powerUp.y, powerUp.color);
+                    powerUps.splice(i, 1);
+                }
+            }
+        }
+        
+        function applyPowerUp(player, powerUp) {
+            switch (powerUp.type) {
+                case 'speed':
+                    player.speedBoost = true;
+                    setTimeout(() => player.speedBoost = false, powerUp.duration * 16);
+                    break;
+                case 'shield':
+                    player.specialAbility.shield = true;
+                    setTimeout(() => player.specialAbility.shield = false, powerUp.duration * 16);
+                    break;
+                case 'multishot':
+                    player.multishot = true;
+                    setTimeout(() => player.multishot = false, powerUp.duration * 16);
+                    break;
+            }
+        }
+        
+        function createHitEffect(x, y, color) {
+            for (let i = 0; i < 8; i++) {
+                const angle = (Math.PI * 2 * i) / 8;
+                particles.push({
+                    x: x,
+                    y: y,
+                    speed: 2,
+                    direction: angle,
+                    size: 4,
+                    color: color,
+                    life: 30,
+                    type: 'hit'
+                });
+            }
+        }
+        
+        function createShieldEffect(x, y, color) {
+            for (let i = 0; i < 12; i++) {
+                const angle = (Math.PI * 2 * i) / 12;
+                particles.push({
+                    x: x,
+                    y: y,
+                    speed: 1,
+                    direction: angle,
+                    size: 5,
+                    color: '#ffffff',
+                    life: 40,
+                    type: 'shield'
+                });
+            }
+        }
+        
+        function createExplosionEffect(x, y, color) {
+            for (let i = 0; i < 20; i++) {
+                const angle = (Math.PI * 2 * i) / 20;
+                particles.push({
+                    x: x,
+                    y: y,
+                    speed: 4,
+                    direction: angle,
+                    size: 6,
+                    color: color,
+                    life: 50,
+                    type: 'explosion'
+                });
+            }
+        }
+        
+        function createPowerUpEffect(x, y, color) {
+            for (let i = 0; i < 16; i++) {
+                const angle = (Math.PI * 2 * i) / 16;
+                particles.push({
+                    x: x,
+                    y: y,
+                    speed: 3,
+                    direction: angle,
+                    size: 4,
+                    color: color,
+                    life: 40,
+                    type: 'powerup'
+                });
+            }
+        }
+        
+        function resetRound() {
+            resetPositions();
+            player1.health = 100;
+            player2.health = 100;
+            updateHealthBars();
+            
+            // Clear all projectiles and power-ups
+            player1.projectiles = [];
+            player2.projectiles = [];
+            powerUps = [];
+            
+            // Reset special abilities
+            deactivateSpecialAbility(player1);
+            deactivateSpecialAbility(player2);
+        }
+        
+        function resetPositions() {
+            player1.x = 100;
+            player1.y = canvas.height/2;
+            player2.x = canvas.width - 100;
+            player2.y = canvas.height/2;
+        }
+        
+        function draw() {
+            // Clear canvas with gradient background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#0a0a2a');
+            gradient.addColorStop(1, '#1a1a4a');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid effect
+            drawGrid();
+            
+            // Draw particles
+            drawParticles();
+            
+            // Draw power-ups
+            drawPowerUps();
+            
+            // Draw players
+            drawPlayer(player1);
+            drawPlayer(player2);
+            
+            // Draw projectiles
+            drawProjectiles();
+        }
+        
+        function drawGrid() {
+            ctx.strokeStyle = '#ffffff10';
+            ctx.lineWidth = 1;
+            
+            // Vertical lines
+            for (let i = 0; i < canvas.width; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            
+            // Horizontal lines
+            for (let i = 0; i < canvas.height; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+        }
+        
+        function drawParticles() {
+            for (const particle of particles) {
+                ctx.globalAlpha = particle.life / 50;
+                ctx.fillStyle = particle.color;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+        
+        function drawPowerUps() {
+            for (const powerUp of powerUps) {
+                ctx.fillStyle = powerUp.color;
+                ctx.beginPath();
+                ctx.arc(powerUp.x, powerUp.y, powerUp.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Add glow effect
+                ctx.shadowColor = powerUp.color;
+                ctx.shadowBlur = 15;
+                ctx.beginPath();
+                ctx.arc(powerUp.x, powerUp.y, powerUp.size - 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        function drawPlayer(player) {
+            // Draw shield if active
+            if (player.specialAbility.shield) {
+                ctx.strokeStyle = player.color;
+                ctx.lineWidth = 3;
+                ctx.globalAlpha = 0.5;
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.size + 10, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            }
+            
+            // Draw player body
+            ctx.fillStyle = player.color;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Add glow effect
+            ctx.shadowColor = player.color;
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.size - 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+        
+        function drawProjectiles() {
+            // Draw all projectiles with glow effects
+            for (const player of [player1, player2]) {
+                ctx.fillStyle = player.color;
+                ctx.shadowColor = player.color;
+                ctx.shadowBlur = 10;
+                
+                for (const proj of player.projectiles) {
+                    ctx.beginPath();
+                    ctx.arc(proj.x, proj.y, proj.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            ctx.shadowBlur = 0;
+        }
+        
+        // Show menu on load
+        document.getElementById('menu').style.display = 'block';
+    </script>
+</body>
+</html>
