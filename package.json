@@ -1,8 +1,0 @@
-# Open package.json and add to the "scripts" section:
-# "start": "http-server"
-git add .
-git commit -m "Initial commit"
-# Replace with your GitHub repository URL
-git remote add origin https://github.com/YOUR-USERNAME/wallpaper-manager.git
-git branch -M main
-git push -u origin main
