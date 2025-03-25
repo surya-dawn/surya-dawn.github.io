@@ -1,7 +1,5 @@
 # Surya - Innovation Beyond Limits
 
-Smart, Useful, Amazing
----
 
 ## 🚀 About Surya
 
