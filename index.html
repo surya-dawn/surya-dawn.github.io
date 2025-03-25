@@ -12,8 +12,8 @@
     <div class="container">
         <!-- Center Content -->
         <div class="center-content">
-            <div class="date" id="current-date">Tuesday, March 25</div>
-            <div class="time" id="current-time">14:30:45</div>
+            <div class="date" id="current-date">Loading Date...</div>
+            <div class="time" id="current-time">--:--:--</div>
         </div>
 
         <!-- Bottom Navbar -->
@@ -35,15 +35,22 @@
             const timeElement = document.getElementById('current-time');
             const now = new Date();
             
-            const dateOptions = { weekday: 'long', month: 'long', day: 'numeric' };
-            dateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
+            // Localized date formatting
+            const dateOptions = { 
+                weekday: 'long', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            dateElement.textContent = now.toLocaleDateString(undefined, dateOptions);
             
-            const timeString = now.toLocaleTimeString([], { 
+            // Localized time formatting with user's local timezone
+            const timeOptions = { 
                 hour: '2-digit', 
                 minute: '2-digit', 
-                second: '2-digit' 
-            });
-            timeElement.textContent = timeString;
+                second: '2-digit', 
+                hour12: false // 24-hour format
+            };
+            timeElement.textContent = now.toLocaleTimeString(undefined, timeOptions);
         }
 
         // Initialize and update time every second
