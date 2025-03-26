@@ -486,6 +486,81 @@ body.light-theme .wallpaper-modal {
 body.light-theme .wallpaper-content {
     background: rgba(240, 240, 240, 0.9);
 }
+
+body {
+            --icon-color: #ffffff;
+            --nav-bg-color: rgba(30, 30, 30, 0.5);
+            --nav-border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Light Theme Variables and Adjustments */
+        body.light-theme {
+            --bg-dark: #f0f0f0;
+            --bg-secondary: rgba(220, 220, 220, 0.8);
+            --text-primary: #000000;
+            --text-secondary: rgba(0, 0, 0, 0.7);
+            --accent: #2196F3;
+            
+            /* Light theme specific icon and nav colors */
+            --icon-color: #000000;
+            --nav-bg-color: rgba(150, 100, 50, 0.2); /* Warm dark color */
+            --nav-border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Update bottom navbar and nav icons for both themes */
+        .bottom-navbar {
+            background-color: var(--nav-bg-color) !important;
+            border: 1px solid var(--nav-border-color) !important;
+        }
+
+        .nav-icon {
+            filter: brightness(0) invert(var(--icon-invert, 0));
+            opacity: 0.6;
+        }
+
+        body.light-theme .nav-icon {
+            --icon-invert: 0;
+        }
+
+        body:not(.light-theme) .nav-icon {
+            --icon-invert: 1;
+        }
+
+        .nav-icon.active, 
+        .nav-icon:hover {
+            opacity: 1;
+        }
+
+        /* Update menu icons and symbols for both themes */
+        .menu-item .material-symbols-rounded,
+        .nav-icon .material-symbols-rounded {
+            color: var(--icon-color);
+            opacity: 0.7;
+        }
+
+        .top-bar .menu-button .material-symbols-rounded {
+            color: var(--icon-color);
+            opacity: 0.7;
+        }
+
+        .bottom-navbar {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .bottom-navbar.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .center-content {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .center-content.shifted {
+            transform: translate(-50%, -50%) scale(0.9);
+            opacity: 0.7;
+        }
     </style>
 </head>
 <div class="overlay" id="overlay"></div>
@@ -550,14 +625,14 @@ body.light-theme .wallpaper-content {
         </div>
 
         <div class="bottom-navbar">
-            <img src="icons/home2.png" alt="Home" class="nav-icon active" />
-            <img src="icons/store.png" alt="Store" class="nav-icon" />
-            <img src="icons/extensions.png" alt="Extensions" class="nav-icon" />
-            <img src="icons/workspace.png" alt="Workspace" class="nav-icon" />
-            <img src="icons/tools.png" alt="Tools" class="nav-icon" />
-            <img src="icons/surya-space.png" alt="Surya Space" class="nav-icon" />
-            <img src="icons/surya-ai.png" alt="Surya AI" class="nav-icon" />
-            <img src="icons/settings.png" alt="Settings" class="nav-icon" />
+            <img src="home2.png" alt="Home" class="nav-icon active" />
+            <img src="store.png" alt="Store" class="nav-icon" />
+            <img src="extensions.png" alt="Extensions" class="nav-icon" />
+            <img src="workspace.png" alt="Workspace" class="nav-icon" />
+            <img src="tools.png" alt="Tools" class="nav-icon" />
+            <img src="surya-space.png" alt="Surya Space" class="nav-icon" />
+            <img src="surya-ai.png" alt="Surya AI" class="nav-icon" />
+            <img src="settings.png" alt="Settings" class="nav-icon" />
         </div>
 
         <div class="settings-panel" id="settings-panel">
@@ -605,7 +680,7 @@ body.light-theme .wallpaper-content {
     </div>
 
     <script>
-        document.addEventListener('keydown', function(e) {
+       document.addEventListener('keydown', function(e) {
     if (e.ctrlKey && e.key === 'i') {
         e.preventDefault();
         console.log('Inspection disabled');
@@ -684,15 +759,48 @@ overlay.addEventListener('click', () => {
     overlay.classList.remove('active');
 });
 
-// Toggle switches
+// Apps Toggle Functionality
 const appsToggle = document.getElementById('apps-toggle');
-
-document.getElementById('theme-toggle').addEventListener('click', () => {
-    document.getElementById('theme-toggle').classList.toggle('active');
-});
+const bottomNavbar = document.querySelector('.bottom-navbar');
+const centerContent = document.querySelector('.center-content');
 
 appsToggle.addEventListener('click', () => {
+    // Toggle active class on the toggle
     appsToggle.classList.toggle('active');
+    
+    // Toggle navbar visibility
+    bottomNavbar.classList.toggle('hidden');
+    
+    // Shift center content when navbar is hidden
+    centerContent.classList.toggle('shifted');
+});
+
+// Theme Toggle Functionality
+const themeToggles = document.querySelectorAll('#theme-toggle');
+
+function toggleTheme() {
+    // Toggle theme class on body
+    document.body.classList.toggle('light-theme');
+    
+    // Shift center content temporarily for visual effect
+    centerContent.classList.add('shifted');
+    setTimeout(() => {
+        centerContent.classList.remove('shifted');
+    }, 300);
+    
+    // Sync all theme toggle states
+    themeToggles.forEach(toggle => {
+        toggle.classList.toggle('active');
+    });
+    
+    // Save current theme preference
+    const currentTheme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+    localStorage.setItem('suryaOSTheme', currentTheme);
+}
+
+// Add event listeners to all theme toggles
+themeToggles.forEach(toggle => {
+    toggle.addEventListener('click', toggleTheme);
 });
 
 // Wallpaper functionality
@@ -784,12 +892,9 @@ document.getElementById('settings-version-button').addEventListener('click', () 
 // Load saved wallpaper when page loads
 loadSavedWallpaper();
 
+// Update date and time
 updateDateTime();
 setInterval(updateDateTime, 1000);
-
-// Theme toggle functionality
-const themeToggle = document.getElementById('theme-toggle');
-const root = document.documentElement;
 
 // Load saved theme on startup
 function loadSavedTheme() {
@@ -802,27 +907,6 @@ function loadSavedTheme() {
         toggle.classList.toggle('active', savedTheme === 'light');
     });
 }
-
-// Theme toggle event listener
-function toggleTheme() {
-    // Toggle theme class on body
-    document.body.classList.toggle('light-theme');
-    
-    // Sync both toggle states
-    const themeToggles = document.querySelectorAll('#theme-toggle');
-    themeToggles.forEach(toggle => {
-        toggle.classList.toggle('active');
-    });
-    
-    // Save current theme preference
-    const currentTheme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
-    localStorage.setItem('suryaOSTheme', currentTheme);
-}
-
-// Add event listeners to all theme toggles
-document.querySelectorAll('#theme-toggle').forEach(toggle => {
-    toggle.addEventListener('click', toggleTheme);
-});
 
 // Load theme on page load
 loadSavedTheme();
