@@ -1,70 +1,50 @@
 # Surya - Innovation Beyond Limits
 
+Welcome to Surya, a cutting-edge platform dedicated to enhancing creativity, productivity, and innovation. This README outlines our mission, features, and guidelines for contributing to the Surya ecosystem.
 
 ## 🚀 About Surya
-
-Surya is an evolving digital experience that seamlessly integrates smart AI technology, sleek designs, and powerful tools to elevate your workflow. With our transition to a more efficient platform, we ensure improved performance, usability, and overall experience.
-
----
+Surya is an evolving digital experience that combines smart AI technology, sleek designs, and powerful tools to elevate your workflow. Our latest transition to a more efficient platform ensures improved performance, usability, and overall experience.
 
 ## 🌐 Features
-
-### **Surya AI**
-- Your intelligent assistant for insights, ideas, and creative solutions.
-
-### **Surya Ecosystem**
-- Integrated tools designed to boost productivity, collaboration, and creativity.
-
-### **Enhanced Design**
-- A sleek, minimalistic interface for improved usability and user experience.
-
----
+- **Surya AI**: Your intelligent assistant for insights, ideas, and creative solutions.
+- **Surya Ecosystem**: Integrated tools for productivity, collaboration, and creativity.
+- **Enhanced Design**: Our new interface offers a sleek, minimalistic feel with improved usability.
 
 ## 📋 Usage
+- Use Surya AI for content suggestions, weather insights, and smart automation.
+- Access the Surya Ecosystem to explore integrated tools for design, communication, and productivity.
+- Navigate through the sleek interface for an enhanced user experience.
 
-- **Surya AI**: Utilize it for content suggestions, weather insights, and smart automation.
-- **Surya Ecosystem**: Access a suite of integrated tools for design, communication, and productivity.
-- **User Experience**: Navigate through an intuitive and responsive interface.
+## 📜 Guidelines
+### ✅ Allowed Actions
+- Use Surya for personal, educational, and professional purposes.
+- Provide constructive feedback for platform improvements.
+- Share Surya content with proper credit.
 
----
+### ❌ Restricted Actions
+- Do not attempt to alter, reverse-engineer, or misuse Surya services.
+- Avoid replicating Surya branding, tools, or content without permission.
+- Any malicious use or spamming is strictly prohibited.
 
-## 📜 Contributions
-
-We welcome contributions to Surya! Here's how you can get involved:
-
-- **Report Issues**: Found a bug or have a suggestion? Submit an issue on the GitHub Repo.
-- **Code Contributions**: If you’re familiar with HTML, CSS, JavaScript, or Python, feel free to fork the project and submit a pull request with your improvements.
-- **Feature Ideas**: Share your ideas for new features or enhancements through discussions or the issue tracker.
-- **Feedback**: Use Surya and let us know what works well and what can be improved.
-- **UI Concepts**: Create mockups of an improved Surya interface and create a new GitHub Issue.
-
----
-
-## 🔧 Recommended Settings
-
-- Disable any dark mode and ad blocker extensions to avoid display issues.
-
----
-
-## 📅 What's Next for Surya?
-
-As Surya evolves, new features and updates will continue to be added, including:
-
-- Advanced customization options
-- Integration with more third-party services to enhance functionality
-
----
+## 🛠️ Contributing
+We welcome contributions to Surya! To contribute:
+1. Fork the repository.
+2. Create a branch:
+   ```bash
+   git checkout -b feature-name
+   ```
+3. Commit your changes:
+   ```bash
+   git commit -m "Add feature"
+   ```
+4. Push the branch:
+   ```bash
+   git push origin feature-name
+   ```
+5. Submit a Pull Request.
 
 ## 📄 License
-
-Surya is licensed under the **GPL-3.0 License** and the **Apache License 2.0**. See the `LICENSE` file for more details.
-
----
+Surya is licensed under the GPL-3.0 License and the Apache License 2.0. See LICENSE for details.
 
 ## 📞 Contact
-
-For inquiries, support, or collaboration opportunities, reach out to our team at **surya_support@proton.me**.
-
----
-
-Thank you for being part of Surya – where innovation knows no limits! 🚀
+For inquiries, support, or collaboration opportunities, reach out to our team at [surya_support.proton.me](mailto:surya_support.proton.me).
