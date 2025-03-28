@@ -14,7 +14,7 @@ document.addEventListener('keydown', function(e) {
         console.log('Inspection disabled');
     }
 
-     if (e.ctrlKey && e.shiftKey && e.key === 'J') {
+    if (e.ctrlKey && e.shiftKey && e.key === 'J') {
         e.preventDefault();
         console.log('Console disabled');
     }
@@ -61,7 +61,7 @@ document.addEventListener('click', (event) => {
     }
 });
 
-// Existing settings panel toggle
+// Settings panel toggle
 const settingsToggle = document.getElementById('menu-toggle');
 const settingsPanel = document.getElementById('settings-panel');
 const overlay = document.getElementById('overlay');
@@ -207,12 +207,129 @@ document.getElementById('settings-version-button').addEventListener('click', () 
     window.open('https://sites.google.com/view/surya-space', '_blank');
 });
 
-// Load saved wallpaper when page loads
-loadSavedWallpaper();
+// Music Player Functionality
+const musicInsertButton = document.getElementById('music-insert-button');
+const musicModal = document.getElementById('music-modal');
+const musicInput = document.getElementById('music-input');
+const musicPreview = document.getElementById('music-preview');
+const selectMusicButton = document.getElementById('select-music-button');
+const saveMusicButton = document.getElementById('save-music-button');
+const closeMusicButton = document.getElementById('close-music-button');
+const musicPlayer = document.getElementById('music-player');
+const musicTitle = document.getElementById('music-title');
+const playPauseBtn = document.getElementById('play-pause-btn');
 
-// Update date and time
-updateDateTime();
-setInterval(updateDateTime, 1000);
+let audioPlayer = new Audio();
+let currentMusicFile = null;
+
+// Load saved music on startup
+function loadSavedMusic() {
+    const savedMusic = localStorage.getItem('suryaOSMusic');
+    const musicSaved = localStorage.getItem('musicSavedPermanently');
+    
+    if (savedMusic && musicSaved === 'true') {
+        // Extract filename from full path or data URL
+        const fileName = savedMusic.split('/').pop().split('\\').pop();
+        
+        musicTitle.textContent = fileName;
+        audioPlayer.src = savedMusic;
+        musicPlayer.classList.add('active');
+        
+        // Do NOT automatically play the saved music
+        playPauseBtn.textContent = 'play_circle';
+    }
+}
+
+// Open music modal
+musicInsertButton.addEventListener('click', () => {
+    musicModal.classList.add('active');
+});
+
+// Select music
+selectMusicButton.addEventListener('click', () => {
+    musicInput.click();
+});
+
+// Preview selected music
+musicInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        musicPreview.innerHTML = `<span>${file.name}</span>`;
+    }
+});
+
+// Save music
+saveMusicButton.addEventListener('click', () => {
+    const file = musicInput.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            // Save to localStorage
+            localStorage.setItem('suryaOSMusic', e.target.result);
+            localStorage.setItem('musicSavedPermanently', 'true');
+            
+            // Update music player
+            musicTitle.textContent = file.name;
+            audioPlayer.src = e.target.result;
+            currentMusicFile = e.target.result;
+            
+            // Show music player
+            musicPlayer.classList.add('active');
+            
+            // Automatically start playing
+            audioPlayer.play()
+                .then(() => {
+                    playPauseBtn.textContent = 'pause_circle';
+                })
+                .catch(error => {
+                    console.error('Error playing music:', error);
+                });
+            
+            // Close modal
+            musicModal.classList.remove('active');
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Close music modal
+closeMusicButton.addEventListener('click', () => {
+    musicModal.classList.remove('active');
+});
+
+// Play/Pause functionality
+playPauseBtn.addEventListener('click', () => {
+    if (audioPlayer.paused) {
+        audioPlayer.play()
+            .then(() => {
+                playPauseBtn.textContent = 'pause_circle';
+            })
+            .catch(error => {
+                console.error('Error playing music:', error);
+            });
+    } else {
+        audioPlayer.pause();
+        playPauseBtn.textContent = 'play_circle';
+    }
+});
+
+// Update play/pause button when audio ends
+audioPlayer.addEventListener('ended', () => {
+    playPauseBtn.textContent = 'play_circle';
+});
+
+// Pause music when navigating away from the page
+window.addEventListener('blur', () => {
+    if (!audioPlayer.paused) {
+        audioPlayer.pause();
+        playPauseBtn.textContent = 'play_circle';
+    }
+});
+
+// Do not automatically resume when returning
+window.addEventListener('focus', () => {
+    // Intentionally left empty to prevent auto-resuming
+});
 
 // Load saved theme on startup
 function loadSavedTheme() {
@@ -226,5 +343,16 @@ function loadSavedTheme() {
     });
 }
 
-// Load theme on page load
-loadSavedTheme();
+// Load saved data on page load
+function initializePage() {
+    loadSavedWallpaper();
+    loadSavedTheme();
+    loadSavedMusic();
+    
+    // Update date and time
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+}
+
+// Initialize the page when DOM is fully loaded
+document.addEventListener('DOMContentLoaded', initializePage);
