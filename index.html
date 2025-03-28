@@ -7,9 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
-    <link href="css/index.css" rel="stylesheet">
+    <link href="surya1.css" rel="stylesheet">
 </head>
-<div class="overlay" id="overlay"></div>
+<body>
+    <div class="overlay" id="overlay"></div>
     <div class="container">
         <div class="top-bar">
             <div class="menu-button" id="menu-toggle">
@@ -66,18 +67,28 @@
         </div>
 
         <div class="center-content">
-            <div class="date" id="current-date">Loading...</div>
+            <div class="date" id="current-date">Loading Date...</div>
             <div class="time" id="current-time">--:--:--</div>
         </div>
 
+        <div class="music-player" id="music-player">
+            <div class="music-info">
+                <span class="music-title" id="music-title">No Music Selected</span>
+                <div class="music-controls">
+                    <span class="material-symbols-rounded" id="play-pause-btn">play_circle</span>
+                </div>
+            </div>
+        </div>
+
         <div class="bottom-navbar">
-            <img src="icons/home2.png" alt="Home" class="nav-icon active" />
-            <img src="icons/store.png" alt="Store" class="nav-icon" />
-            <img src="icons/extension.png" alt="Extensions" class="nav-icon" />
-            <img src="icons/workspace.png" alt="Workspace" class="nav-icon" />
-            <img src="icons/tools.png" alt="Tools" class="nav-icon" />
-            <img src="icons/surya-space.png" alt="Surya Space" class="nav-icon" />
-            <img src="icons/surya-ai.png" alt="Surya AI" class="nav-icon" />
+            <img src="home2.png" alt="Home" class="nav-icon active" />
+            <img src="store.png" alt="Store" class="nav-icon" />
+            <img src="extensions.png" alt="Extensions" class="nav-icon" />
+            <img src="workspace.png" alt="Workspace" class="nav-icon" />
+            <img src="tools.png" alt="Tools" class="nav-icon" />
+            <img src="surya-space.png" alt="Surya Space" class="nav-icon" />
+            <img src="surya-ai.png" alt="Surya AI" class="nav-icon" />
+            <img src="settings.png" alt="Settings" class="nav-icon" />
         </div>
 
         <div class="settings-panel" id="settings-panel">
@@ -96,6 +107,12 @@
                     <div class="rounded-button" id="insert-button">Insert</div>
                 </div>
             </div>
+            <div class="settings-item">
+                <span>Music</span>
+                <div class="button-wrapper">
+                    <div class="rounded-button" id="music-insert-button">Insert</div>
+                </div>
+            </div>
 
             <div class="menu-panel-actions">
                 <div class="version-button" id="settings-version-button">
@@ -109,21 +126,34 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Wallpaper Modal -->
-    <div class="wallpaper-modal" id="wallpaper-modal">
-        <div class="wallpaper-content">
-            <div class="wallpaper-preview" id="wallpaper-preview"></div>
-            <input type="file" accept="image/*" class="wallpaper-input" id="wallpaper-input">
-            <div class="wallpaper-actions">
-                <div class="rounded-button" id="select-wallpaper-button">Select Wallpaper</div>
-                <div class="rounded-button" id="save-wallpaper-button">Save</div>
-                <div class="rounded-button" id="close-wallpaper-button">Close</div>
+        <div class="wallpaper-modal" id="wallpaper-modal">
+            <div class="wallpaper-content">
+                <div class="wallpaper-preview" id="wallpaper-preview"></div>
+                <input type="file" accept="image/*" class="wallpaper-input" id="wallpaper-input">
+                <div class="wallpaper-actions">
+                    <div class="rounded-button" id="select-wallpaper-button">Select Wallpaper</div>
+                    <div class="rounded-button" id="save-wallpaper-button">Save</div>
+                    <div class="rounded-button" id="close-wallpaper-button">Close</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="music-modal" id="music-modal">
+            <div class="music-content">
+                <div class="music-preview" id="music-preview">
+                    <span id="music-file-name">No file selected</span>
+                </div>
+                <input type="file" accept="audio/*" class="music-input" id="music-input">
+                <div class="music-actions">
+                    <div class="rounded-button" id="select-music-button">Select Music</div>
+                    <div class="rounded-button" id="save-music-button">Save</div>
+                    <div class="rounded-button" id="close-music-button">Close</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="js/index.js"></script>
+    <script src="surya1.js"></script>
 </body>
 </html>
