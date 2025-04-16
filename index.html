@@ -488,7 +488,211 @@
                     // This depends on how your toggle is implemented
                 }
             }
+
+            
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+    // Menu panel functionality
+    const menuToggle = document.getElementById('menu-toggle');
+    const menuPanel = document.getElementById('menu-panel');
+    const container = document.querySelector('.container');
+    const overlay = document.getElementById('overlay');
+    
+    // Function to open menu
+    function openMenu() {
+        // Show the overlay
+        overlay.style.display = 'block';
+        setTimeout(() => {
+            overlay.classList.add('show');
+        }, 10);
+        
+        // Show menu panel with animation
+        menuPanel.classList.add('show');
+        
+        // Prevent scrolling when menu is open
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Function to close menu
+    function closeMenu() {
+        // Hide the overlay with animation
+        overlay.classList.remove('show');
+        
+        // Hide menu panel with animation
+        menuPanel.classList.remove('show');
+        
+        // After animations complete, hide elements completely
+        setTimeout(() => {
+            if (!folderModal.classList.contains('show')) {
+                overlay.style.display = 'none';
+            }
+            
+            // Re-enable scrolling if folder modal is also closed
+            if (!folderModal.classList.contains('show')) {
+                document.body.style.overflow = '';
+            }
+        }, 300); // Match this with your CSS transition duration
+    }
+    
+    // Menu toggle button click
+    menuToggle.addEventListener('click', function() {
+        if (menuPanel.classList.contains('show')) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const isClickInsideMenu = menuPanel.contains(event.target);
+        const isClickOnMenuToggle = menuToggle.contains(event.target);
+        
+        if (!isClickInsideMenu && !isClickOnMenuToggle && menuPanel.classList.contains('show')) {
+            closeMenu();
+        }
+    });
+    
+    // Close menu when clicking the overlay
+    overlay.addEventListener('click', function() {
+        if (menuPanel.classList.contains('show')) {
+            closeMenu();
+        }
+        if (folderModal.classList.contains('show')) {
+            closeFolder();
+        }
+    });
+    
+    // Close menu when pressing Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            if (menuPanel.classList.contains('show')) {
+                closeMenu();
+            }
+            if (folderModal.classList.contains('show')) {
+                closeFolder();
+            }
+        }
+    });
+    
+    // Folder modal functionality
+    const partnersFolder = document.getElementById('partners-folder');
+    const folderModal = document.getElementById('folder-modal');
+    
+    // Open folder modal with animation
+    partnersFolder.addEventListener('click', function() {
+        // Show and animate the overlay
+        overlay.style.display = 'block';
+        setTimeout(() => {
+            overlay.classList.add('show');
+        }, 10);
+        
+        // Show the modal
+        folderModal.classList.add('show');
+        partnersFolder.classList.add('active');
+        
+        // Add bounce effect to folder icon
+        partnersFolder.style.animation = 'bounce 0.5s';
+        setTimeout(() => {
+            partnersFolder.style.animation = '';
+        }, 500);
+        
+        // Prevent scrolling when modal is open
+        document.body.style.overflow = 'hidden';
+    });
+    
+    // Close folder modal when clicking outside
+    folderModal.addEventListener('click', function(event) {
+        // Close only if clicking directly on the modal background (not its children)
+        if (event.target === folderModal) {
+            closeFolder();
+        }
+    });
+    
+    // Function to close folder modal with proper animation sequence
+    function closeFolder() {
+        // Fade out the overlay first
+        overlay.classList.remove('show');
+        
+        // Hide the modal
+        folderModal.classList.remove('show');
+        partnersFolder.classList.remove('active');
+        
+        // After animations complete, hide elements completely
+        setTimeout(() => {
+            if (!menuPanel.classList.contains('show')) {
+                overlay.style.display = 'none';
+            }
+            
+            // Re-enable scrolling if menu is also closed
+            if (!menuPanel.classList.contains('show')) {
+                document.body.style.overflow = '';
+            }
+        }, 300); // Match this with your CSS transition duration
+    }
+    
+    // Add animation to app icons when hovering over them
+    const appIcons = document.querySelectorAll('.app-icon');
+    appIcons.forEach(icon => {
+        icon.addEventListener('mouseover', function() {
+            this.style.transform = 'translateY(-4px) scale(1.05)';
+        });
+        
+        icon.addEventListener('mouseout', function() {
+            this.style.transform = '';
+        });
+    });
+    
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('theme-toggle');
+    const body = document.body;
+    
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            body.classList.toggle('dark-mode');
+            
+            // Save preference to localStorage
+            if (body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            // Update toggle UI if needed
+            // This depends on how your toggle is implemented
+        }
+    }
+    
+    // Current date and time functionality
+    const currentDateElement = document.getElementById('current-date');
+    const currentTimeElement = document.getElementById('current-time');
+    
+    function updateDateTime() {
+        const now = new Date();
+        
+        // Format date: Monday, January 1, 2025
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDate = now.toLocaleDateString('en-US', options);
+        currentDateElement.textContent = formattedDate;
+        
+        // Format time: 12:00:00 AM
+        const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        const formattedTime = now.toLocaleTimeString('en-US', timeOptions);
+        currentTimeElement.textContent = formattedTime;
+    }
+    
+    // Update date and time initially
+    updateDateTime();
+    
+    // Update time every second
+    setInterval(updateDateTime, 1000);
+});
     </script>
 </body>
 </html>
